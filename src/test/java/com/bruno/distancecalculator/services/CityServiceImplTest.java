@@ -34,6 +34,6 @@ public class CityServiceImplTest {
         Double distanceInKm = distance * MILE;
         when(cityRepository.getDistance(from, to)).thenReturn(distance);
         String result = cityService.getDistance(from, to);
-        assertThat(result, is(equalTo("The distance between the given cities is " + distanceInKm + " Km")));
+        assertThat(result, is(equalTo(String.format("The distance between the given cities is %.2f Km", distanceInKm))));
     }
 }

@@ -16,6 +16,6 @@ public class CityServiceImpl implements CityService {
     @Override
     public String getDistance(final Long from, final Long to) {
         Double distanceInKm = cityRepository.getDistance(from, to) * MILE;
-        return String.format("The distance between the given cities is %s Km", distanceInKm);
+        return String.format("The distance between the given cities is %.2f Km", distanceInKm);
     }
 }
