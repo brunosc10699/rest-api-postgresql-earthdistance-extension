@@ -1,5 +1,6 @@
 package com.bruno.distancecalculator.resources;
 
+import com.bruno.distancecalculator.services.exceptions.ResourceNotFoundException;
 import com.bruno.distancecalculator.services.impl.CityServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -51,5 +53,33 @@ public class CityResourceTest {
         when(cityService.getDistance(from, to)).thenReturn(result);
         mockMvc.perform(MockMvcRequestBuilders.get(URN + "/distance?from=" + from + "&to=" + to))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("(2) Should return 404 Not Found status when a given city is not found")
+    void whenProvidingAnUnregisteredCityReturn401NotFoundStatus() throws Exception {
+        Long from = 0L;
+        Long to = 2L;
+        doThrow(ResourceNotFoundException.class).when(cityService).getDistance(from, to);
+        mockMvc.perform(MockMvcRequestBuilders.get(URN + "/distance?from=" + from + "&to=" + to))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("(3) Should return 400 Bad Request status when providing parameters as characters")
+    void whenProvidingParametersAsCharactersReturn400BadRequestStatus() throws Exception {
+        Long from = 1L;
+        String to = "São Paulo";
+        mockMvc.perform(MockMvcRequestBuilders.get(URN + "/distance?from=" + from + "&to=" + to))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("(4) Should return 400 Bad Request status when missing any parameter")
+    void whenMissingAnyParameterReturn400BadRequestStatus() throws Exception {
+        Long from = null;
+        Long to = 2L;
+        mockMvc.perform(MockMvcRequestBuilders.get(URN + "/distance?from=" + from + "&to=" + to))
+                .andExpect(status().isBadRequest());
     }
 }
